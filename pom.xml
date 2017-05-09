@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <licenses>
@@ -12,7 +11,7 @@
 
     <groupId>com.github.nstdio</groupId>
     <artifactId>retrofit-either-adapter</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>retrofit-either-adapter</name>
@@ -26,8 +25,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>${javac.target}</source>
+                    <target>${javac.target}</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -37,9 +36,8 @@
                 <executions>
                     <execution>
                         <id>attach-sources</id>
-                        <phase>deploy</phase>
                         <goals>
-                            <goal>jar-no-fork</goal>
+                            <goal>jar</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -68,14 +66,19 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
+    <properties>
+        <retrofit.version>2.2.0</retrofit.version>
+        <android.version>4.1.1.4</android.version>
+        <junit.version>4.12</junit.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <javac.target>1.6</javac.target>
+    </properties>
 
     <distributionManagement>
         <snapshotRepository>
@@ -90,32 +93,43 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.google.android</groupId>
+            <artifactId>android</artifactId>
+            <version>${android.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>com.squareup.retrofit2</groupId>
             <artifactId>retrofit</artifactId>
-            <version>2.2.0</version>
+            <version>${retrofit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.retrofit2</groupId>
+            <artifactId>adapter-rxjava</artifactId>
+            <version>${retrofit.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>RELEASE</version>
+            <version>3.6.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.retrofit2</groupId>
             <artifactId>converter-gson</artifactId>
-            <version>RELEASE</version>
+            <version>${retrofit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>LATEST</version>
+            <version>3.7.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -123,7 +137,8 @@
     <scm>
         <connection>scm:git:git://github.com/nstdio/retrofit-either-adapter.git</connection>
         <developerConnection>scm:git:ssh://github.com/nstdio/retrofit-either-adapter.git</developerConnection>
-        <url>github.com/nstdio/retrofit-either-adapter/tree/master</url>
+        <url>https://github.com/nstdio/retrofit-either-adapter/tree/master</url>
+        <tag>retrofit-either-adapter-1.0.0</tag>
     </scm>
 
     <developers>
@@ -134,8 +149,4 @@
             <organizationUrl>http://st-dev.com/</organizationUrl>
         </developer>
     </developers>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 </project>

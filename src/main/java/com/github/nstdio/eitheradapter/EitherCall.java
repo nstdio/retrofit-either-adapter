@@ -1,5 +1,7 @@
 package com.github.nstdio.eitheradapter;
 
+import android.os.Handler;
+import android.os.Looper;
 import com.github.nstdio.eitheradapter.annotation.InvocationPolicy;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -25,6 +27,7 @@ public class EitherCall<L, R> {
     private final Converter<ResponseBody, L> leftConverter;
     private final Converter<ResponseBody, R> rightConverter;
     private final InvocationPolicy invocationPolicy;
+    private final Handler handler;
     private EitherCallback<L, R> callback;
     private boolean converterExc;
 
@@ -36,6 +39,7 @@ public class EitherCall<L, R> {
         this.leftConverter = leftConverter;
         this.rightConverter = rightConverter;
         this.invocationPolicy = statusCode;
+        handler = new Handler(Looper.getMainLooper());
 
         checkEmptyBounds();
     }
@@ -100,7 +104,12 @@ public class EitherCall<L, R> {
             return;
         }
 
-        callback.onRight(right);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onRight(right);
+            }
+        });
     }
 
     private void callOnLeft(Response<ResponseBody> response) {
@@ -109,7 +118,12 @@ public class EitherCall<L, R> {
             return;
         }
 
-        callback.onLeft(left);
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                callback.onLeft(left);
+            }
+        });
     }
 
     private boolean clientOrServerError(int code) {
