@@ -66,6 +66,21 @@ public @interface InvocationPolicy {
             this.high = high;
         }
 
+        public static boolean inRange(InvocationPolicy.StatusCodeRange[] ranges, int code) {
+            for (InvocationPolicy.StatusCodeRange range : ranges) {
+                if (inRange(range, code)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        public static boolean inRange(InvocationPolicy.StatusCodeRange range, int code) {
+            return code >= range.low() && code <= range.high();
+        }
+
         public int low() {
             return low;
         }

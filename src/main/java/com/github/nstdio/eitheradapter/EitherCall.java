@@ -1,13 +1,14 @@
 package com.github.nstdio.eitheradapter;
 
 import android.os.Handler;
-import android.os.Looper;
 import com.github.nstdio.eitheradapter.annotation.InvocationPolicy;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Converter;
 import retrofit2.Response;
+
+import static com.github.nstdio.eitheradapter.annotation.InvocationPolicy.StatusCodeRange.inRange;
 
 /**
  * In real-life situations, REST API users often need to determine the type of response data from the server at runtime
@@ -31,15 +32,13 @@ public class EitherCall<L, R> {
     private EitherCallback<L, R> callback;
     private boolean converterExc;
 
-    public EitherCall(final Call<ResponseBody> call,
-                      Converter<ResponseBody, L> leftConverter,
-                      Converter<ResponseBody, R> rightConverter,
-                      InvocationPolicy statusCode) {
+    public EitherCall(final Call<ResponseBody> call, Converter<ResponseBody, L> leftConverter,
+                      Converter<ResponseBody, R> rightConverter, InvocationPolicy statusCode, Handler handler) {
         this.call = call;
         this.leftConverter = leftConverter;
         this.rightConverter = rightConverter;
         this.invocationPolicy = statusCode;
-        handler = new Handler(Looper.getMainLooper());
+        this.handler = handler;
 
         checkEmptyBounds();
     }
@@ -104,12 +103,17 @@ public class EitherCall<L, R> {
             return;
         }
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onRight(right);
-            }
-        });
+        try {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onRight(right);
+                }
+            });
+        } catch (Exception e) {
+            callback.onRight(right);
+        }
+
     }
 
     private void callOnLeft(Response<ResponseBody> response) {
@@ -118,12 +122,16 @@ public class EitherCall<L, R> {
             return;
         }
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                callback.onLeft(left);
-            }
-        });
+        try {
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onLeft(left);
+                }
+            });
+        } catch (Exception e) {
+            callback.onLeft(left);
+        }
     }
 
     private boolean clientOrServerError(int code) {
@@ -158,20 +166,6 @@ public class EitherCall<L, R> {
         }
 
         return null;
-    }
-
-    private boolean inRange(InvocationPolicy.StatusCodeRange[] ranges, int code) {
-        for (InvocationPolicy.StatusCodeRange range : ranges) {
-            if (inRange(range, code)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private boolean inRange(InvocationPolicy.StatusCodeRange range, int code) {
-        return code >= range.low() && code <= range.high();
     }
 
     private boolean contains(int[] statusCodes, int search) {

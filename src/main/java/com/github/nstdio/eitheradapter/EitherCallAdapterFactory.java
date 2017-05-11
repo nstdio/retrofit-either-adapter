@@ -1,5 +1,7 @@
 package com.github.nstdio.eitheradapter;
 
+import android.os.Handler;
+import android.os.Looper;
 import com.github.nstdio.eitheradapter.annotation.InvocationPolicy;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -14,12 +16,18 @@ import java.lang.reflect.Type;
 public final class EitherCallAdapterFactory extends CallAdapter.Factory {
 
     public static final Annotation[] ANNOTATIONS = new Annotation[0];
+    private final Handler handler;
 
-    private EitherCallAdapterFactory() {
+    private EitherCallAdapterFactory(Handler handler) {
+        this.handler = handler;
     }
 
     public static EitherCallAdapterFactory create() {
-        return new EitherCallAdapterFactory();
+        return create(new Handler(Looper.getMainLooper()));
+    }
+
+    public static EitherCallAdapterFactory create(Handler handler) {
+        return new EitherCallAdapterFactory(handler);
     }
 
     public CallAdapter<?, ?> get(Type returnType, Annotation[] annotations, Retrofit retrofit) {
@@ -39,7 +47,7 @@ public final class EitherCallAdapterFactory extends CallAdapter.Factory {
 
         final InvocationPolicy statusCode = annotated(annotations);
 
-        return new EitherCallAdapter(left, right, statusCode);
+        return new EitherCallAdapter(left, right, statusCode, handler);
     }
 
     private InvocationPolicy annotated(Annotation[] annotations) {
@@ -81,12 +89,14 @@ public final class EitherCallAdapterFactory extends CallAdapter.Factory {
         private final Converter<ResponseBody, L> left;
         private final Converter<ResponseBody, R> right;
         private final InvocationPolicy statusCode;
+        private final Handler handler;
 
-        private EitherCallAdapter(Converter<ResponseBody, L> left,
-                                  Converter<ResponseBody, R> right, InvocationPolicy statusCode) {
+        private EitherCallAdapter(Converter<ResponseBody, L> left, Converter<ResponseBody, R> right,
+                                  InvocationPolicy statusCode, Handler handler) {
             this.left = left;
             this.right = right;
             this.statusCode = statusCode;
+            this.handler = handler;
         }
 
         public Type responseType() {
@@ -95,7 +105,7 @@ public final class EitherCallAdapterFactory extends CallAdapter.Factory {
 
         @Override
         public EitherCall<L, R> adapt(Call<ResponseBody> call) {
-            return new EitherCall<L, R>(call, left, right, statusCode);
+            return new EitherCall<L, R>(call, left, right, statusCode, handler);
         }
     }
 }

@@ -1,9 +1,12 @@
 package com.github.nstdio.eitheradapter;
 
+import android.os.Handler;
 import com.google.gson.Gson;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Rule;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -52,10 +55,11 @@ public class TestEnvironmentAware {
 
     Retrofit defaultRetrofit() {
         final GsonConverterFactory factory = GsonConverterFactory.create(gson);
+        final Handler mock = Mockito.mock(Handler.class);
 
         return new Retrofit.Builder()
                 .baseUrl(server.url("/"))
-                .addCallAdapterFactory(EitherCallAdapterFactory.create())
+                .addCallAdapterFactory(EitherCallAdapterFactory.create(mock))
                 .addConverterFactory(factory)
                 .build();
     }

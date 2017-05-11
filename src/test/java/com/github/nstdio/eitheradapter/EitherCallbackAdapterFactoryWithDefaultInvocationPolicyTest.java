@@ -9,7 +9,6 @@ import retrofit2.Retrofit;
 import retrofit2.http.GET;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.*;
